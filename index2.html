@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Messenger service</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0; /* 余白をリセット */
+            padding: 0; /* 余白をリセット */
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            max-width: 400px;
+            margin: 0 auto; /* 中央寄せ */
+            background-color: #fff;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+        label {
+            margin-bottom: 5px;
+        }
+        input[type="text"],
+        button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s ease-in-out;
+        }
+        button[type="submit"] {
+            cursor: pointer;
+            background-color: #007BFF;
+            color: #fff;
+        }
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .btn-delete {
+            cursor: pointer;
+            background-color: #dc3545;
+            color: #fff;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            outline: none;
+            transition: background-color 0.3s ease-in-out;
+        }
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 20px auto;
+            max-width: 400px;
+        }
+        li {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .popup-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .popup-content button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Messenger service</h1>
+    <div class="container">
+        <form id="messageForm">
+            <!-- メッセージ入力欄 -->
+            <div class="form-group">
+                <label for="message">内容：</label>
+                <input type="text" id="message" name="message" required>
+            </div>
+
+            <!-- 送信者入力欄 -->
+            <div class="form-group">
+                <label for="sender">送信者：</label>
+                <input type="text" id="sender" name="sender" required>
+            </div>
+
+            <!-- 送信ボタン -->
+            <button type="submit">送信</button>
+        </form>
+
+        <!-- メッセージリスト -->
+        <ul id="messageList">
+        </ul>
+
+        <!-- メッセージ削除ボタン -->
+        <button class="btn-delete" onclick="deleteAllMessages()">メッセージを全削除</button>
+    </div>
+
+    <!-- ポップアップ -->
+    <div id="popup" class="popup" style="display: none;">
+        <div class="popup-content">
+            <p>メッセージを入力してください。</p>
+            <button onclick="hidePopup()">閉じる</button>
+        </div>
+    </div>
+
+    <!-- JavaScriptスクリプト -->
+    <script>
+        window.onload = function () {
+            const savedMessages = JSON.parse(localStorage.getItem("messages")) || [];
+            const messageList = document.getElementById("messageList");
+
+            savedMessages.forEach((savedMessage) => {
+                const listItem = document.createElement("li");
+                listItem.textContent = savedMessage;
+                messageList.appendChild(listItem);
+            });
+        };
+
+        function handleSubmit(event) {
+            event.preventDefault();
+            const messageInput = document.getElementById("message");
+            const message = messageInput.value.trim();
+
+            if (message !== "") { // メッセージが空でない場合のみ追加
+                const senderInput = document.getElementById("sender");
+                const sender = senderInput.value.trim();
+                const messageList = document.getElementById("messageList");
+                const listItem = document.createElement("li");
+                listItem.textContent = `送信者:${sender} 内容:${message}`;
+                messageList.insertBefore(listItem, messageList.firstChild); // Insert new message at the beginning
+
+                // 送信されたメッセージをlocalStorageに保存
+                const savedMessages = JSON.parse(localStorage.getItem("messages")) || [];
+                savedMessages.unshift(`送信者:${sender} 内容:${message}`);
+                localStorage.setItem("messages", JSON.stringify(savedMessages));
+            } else {
+                // メッセージが空の場合、ポップアップを表示
+                const popup = document.getElementById("popup");
+                popup.style.display = "flex";
+            }
+
+            messageInput.value = "";
+            senderInput.value = "";
+        }
+
+        const form = document.getElementById("messageForm");
+        form.addEventListener("submit", handleSubmit);
+
+        // メッセージを全削除する関数
+        function deleteAllMessages() {
+            const messageList = document.getElementById("messageList");
+            messageList.innerHTML = ""; // メッセージリストを空にする
+            // メッセージリストを空にする
+    localStorage.removeItem("messages"); // localStorageから保存されたメッセージを削除
+}
+
+// ポップアップを非表示にする関数
+function hidePopup() {
+    const popup = document.getElementById("popup");
+    popup.style.display = "none";
+}
+</script>
+</body>
+</html>
+   
